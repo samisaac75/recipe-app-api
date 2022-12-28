@@ -1,11 +1,31 @@
 """
 Django Command to wait for the databse to be available
 """
+import time
 
+from psycopg2 import OperationalError as Psycopg2OpError
+
+from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand
+
+"""Whenever the command is called, the method handle is run."""
 
 class Command(BaseCommand):
     """Django command to wait for database"""
     
     def handle(self, *args, **options):
-        pass
+        """Entry point for command"""
+        """standard output to log outputs to console"""
+        self.stdout.write('Waiting for database')
+
+        """Checking if the database is up and running"""
+        db_up = False
+        while db_up is False:
+            try:
+                self.check(databases=['default'])
+                db_up = True
+            except (Psycopg2OpError, OperationalError):
+                self.stdout.write('Databse is unavailable. Waiting 1 second...')
+                time.sleep(1)
+
+        self.stdout.write(self.style.SUCCESS('Database Available!'))
