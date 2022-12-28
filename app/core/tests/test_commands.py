@@ -18,14 +18,14 @@ class CommandTests(SimpleTestCase):
         patched_check.return_value = True
 
         call_command('wait_for_db')
-        # This ensures that the mocked value (which is the check method) is called with the parameters database=['default']
+
         patched_check.assert_called_once_with(databases=['default'])
 
     @patch('time.sleep')
     def wait_for_db_delay(self, patched_sleep, patched_check):
         """Test waiting for database when getting Operational Error"""
 
-        patched_check.side_effect = [Psycopg2Error] * 2 + \
+        patched_check.side_effect = [Psycopg2OpError] * 2 + \
             [OperationalError] * 3 + [True]
         call_command('wait_for_db')
 
